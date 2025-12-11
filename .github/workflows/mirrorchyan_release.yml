@@ -10,21 +10,20 @@ on:
 
 jobs:
   dotnet_runtime:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     # if: ${{ github.repository_owner == 'MirrorChyan' }}
     strategy:
       fail-fast: false
       matrix:
-        os: [win, osx]
+        os: [win]
         arch: [arm64, x64]
     steps:
       - name: Download dotnet-runtime
         id: download_dotnet_runtime
         shell: bash
         run: |
-          filename=dotnet-runtime-${{ inputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.os == 'win' && 'exe' || 'pkg' }}
-
-          wget https://builds.dotnet.microsoft.com/dotnet/Runtime/${{ inputs.tag }}/$filename -O $filename
+          filename=windowsdesktop-runtime-${{ inputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}.exe
+          wget https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/${{ inputs.tag }}/$filename -O $filename
 
           echo "filename=$filename" | tee -a "$GITHUB_OUTPUT"
 
