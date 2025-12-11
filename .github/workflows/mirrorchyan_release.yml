@@ -1,0 +1,39 @@
+name: mirrorchyan_release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        default: "10.0.101"
+        description: "eg: 10.0.101"
+        required: true
+
+jobs:
+  mirrorchyan:
+    runs-on: macos-latest
+    # if: ${{ github.repository_owner == 'MirrorChyan' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [win, osx]
+        arch: [arm64, x64]
+    steps:
+      - name: Download dotnet-sdk
+        shell: bash
+        run: |
+          filename=dotnet-sdk-${{ inputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.os == 'win' && 'exe' || 'pkg' }}
+          wget https://builds.dotnet.microsoft.com/dotnet/Sdk/${{ inputs.tag }}/$filename -O $filename
+          echo "filename=$filename" | tee -a "$GITHUB_OUTPUT"
+
+      - uses: MirrorChyan/uploading-action@v1
+        with:
+          filetype: local
+          filename: ${{ steps.download_dotnet_sdk.outputs.filename }}
+          mirrorchyan_rid: dotnet10
+          version_name: ${{ inputs.tag }}
+
+          os: ${{ matrix.os }}
+          arch: ${{ matrix.arch }}
+
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
