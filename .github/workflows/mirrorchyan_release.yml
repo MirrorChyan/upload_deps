@@ -1,15 +1,15 @@
-name: mirrorchyan_release
+name: upload deps
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        default: "10.0.101"
-        description: "Version, eg: 10.0.101"
+        default: "10.0.1"
+        description: "Version, eg: 10.0.1"
         required: true
 
 jobs:
-  mirrorchyan:
+  dotnet_runtime:
     runs-on: macos-latest
     # if: ${{ github.repository_owner == 'MirrorChyan' }}
     strategy:
@@ -18,18 +18,20 @@ jobs:
         os: [win, osx]
         arch: [arm64, x64]
     steps:
-      - name: Download dotnet-sdk
-        id: download_dotnet_sdk
+      - name: Download dotnet-runtime
+        id: download_dotnet_runtime
         shell: bash
         run: |
-          filename=dotnet-sdk-${{ inputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.os == 'win' && 'exe' || 'pkg' }}
-          wget https://builds.dotnet.microsoft.com/dotnet/Sdk/${{ inputs.tag }}/$filename -O $filename
+          filename=dotnet-runtime-${{ inputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.os == 'win' && 'exe' || 'pkg' }}
+
+          wget https://builds.dotnet.microsoft.com/dotnet/Runtime/${{ inputs.tag }}/$filename -O $filename
+
           echo "filename=$filename" | tee -a "$GITHUB_OUTPUT"
 
       - uses: MirrorChyan/uploading-action@v1
         with:
           filetype: local
-          filename: ${{ steps.download_dotnet_sdk.outputs.filename }}
+          filename: ${{ steps.download_dotnet_runtime.outputs.filename }}
           mirrorchyan_rid: dotnet10
           version_name: ${{ inputs.tag }}
 
